@@ -14,7 +14,8 @@ import { StudentService } from 'src/app/services/student.service';
 export class StudentsComponent implements OnInit, OnDestroy {
   private studentService: StudentService = inject(StudentService);
   private getallStudentSubscribe?: Subscription;
-  students?: IStudentUI[];
+  //students?: IStudentUI[];
+  public students: IStudentUI[] = {} as IStudentUI[];
   displayedColumns: string[] = [
     'firstName',
     'lastName',
