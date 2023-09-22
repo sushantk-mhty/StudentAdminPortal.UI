@@ -11,13 +11,15 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule } from 'ngx-ui-loader';
 import { ViewStudentComponent } from './components/view-student/view-student.component';
+import { MatConfirmDialogComponent } from './components/mat-confirm-dialog/mat-confirm-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TopNavComponent,
     StudentsComponent,
-    ViewStudentComponent
+    ViewStudentComponent,
+    MatConfirmDialogComponent
   ],
   imports: [
     FormsModule,
@@ -59,6 +61,6 @@ import { ViewStudentComponent } from './components/view-student/view-student.com
       NgxUiLoaderHttpModule.forRoot({ showForeground: true })
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule { }

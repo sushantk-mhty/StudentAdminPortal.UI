@@ -6,6 +6,7 @@ import { IGenderUI } from 'src/app/models/ui-models/igenderui.model';
 import { IStudentUI } from 'src/app/models/ui-models/istudentui.model';
 import { GenderService } from 'src/app/services/gender.service';
 import { StudentService } from 'src/app/services/student.service';
+import { DialogService } from 'src/app/shared/dialog.service';
 
 @Component({
   selector: 'app-view-student',
@@ -15,9 +16,10 @@ import { StudentService } from 'src/app/services/student.service';
 export class ViewStudentComponent implements OnInit, OnDestroy {
   private studentService: StudentService = inject(StudentService);
   private genderService: GenderService = inject(GenderService);
-  private route: ActivatedRoute = inject(ActivatedRoute);
+  private route: ActivatedRoute = inject(ActivatedRoute); 
   private router: Router = inject(Router);
   private snackbar: MatSnackBar = inject(MatSnackBar);
+  private dialogService: DialogService = inject(DialogService);
   private getallStudentByIdSubscribe?: Subscription;
   private getallGenderSubscribe?: Subscription;
   private paramSubscription?: Subscription;
@@ -75,19 +77,28 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
     })
 
   }
+
   public onRecordRemove():void{
-     this.removeStudentSubscription= this.studentService.deleteStudent(this.student.id)
-     .subscribe({
-      next:(resp)=>{
-        this.snackbar.open('Student deleted successfully',undefined,{
-          duration:2000
-        });
-        setTimeout(() => {
-          this.router.navigateByUrl('/students').then();
-        }, 2000);
+    this.dialogService.openConfirmDialog('Are you sure to remove this record?')
+    .afterClosed().subscribe({
+      next:(res)=>{
+        if(res){
+          this.removeStudentSubscription= this.studentService.deleteStudent(this.student.id)
+             .subscribe({
+              next:(resp)=>{
+                this.snackbar.open('Student deleted successfully',undefined,{
+                  duration:2000
+                });
+                setTimeout(() => {
+                  this.router.navigateByUrl('/students').then();
+                }, 2000);
+              }
+             })
+        }
       }
-     })
-  }
+    })
+   
+ }
 
   ngOnDestroy(): void {
     this.getallStudentByIdSubscribe?.unsubscribe();
