@@ -85,7 +85,11 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <button mat-raised-button color="primary" (click)="onFormSubmit()">Update</button>
+                            <div class="row between-xs">
+                                <button mat-raised-button color="primary" (click)="onFormSubmit()">Update</button>
+                                <button mat-raised-button color="warn" (click)="onRecordRemove()">Remove</button>
+                            </div>
+                           
                         </div>
                     </div>
     

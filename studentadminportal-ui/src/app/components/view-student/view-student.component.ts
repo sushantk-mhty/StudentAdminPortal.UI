@@ -22,10 +22,10 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   private getallGenderSubscribe?: Subscription;
   private paramSubscription?: Subscription;
   private editStudentSubscription?: Subscription;
+  private removeStudentSubscription?: Subscription;
   private studentId: string | null | undefined;
   public student: IStudentUI = {} as IStudentUI;
-  public gender: IGenderUI[] = {} as IGenderUI[];
-  //public gender?: IGenderUI[];
+  public gender?: IGenderUI[];
   ngOnInit(): void {
     this.paramSubscription = this.route.paramMap.subscribe({
       next: (params) => {
@@ -35,7 +35,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
       },
     });
   }
-
+ 
   private getAllStudents(): void {
     if (this.studentId) {
       this.getallStudentByIdSubscribe = this.studentService
@@ -60,7 +60,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   public onFormSubmit():void{
     this.editStudentSubscription=this.studentService.updateStudent(this.student.id,this.student)
     .subscribe({
-      next:(respnse)=>{
+      next:(response)=>{
         //Show a notification
         this.snackbar.open('Student updated successfully',undefined,{
           duration:2000
@@ -75,11 +75,25 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
     })
 
   }
+  public onRecordRemove():void{
+     this.removeStudentSubscription= this.studentService.deleteStudent(this.student.id)
+     .subscribe({
+      next:(resp)=>{
+        this.snackbar.open('Student deleted successfully',undefined,{
+          duration:2000
+        });
+        setTimeout(() => {
+          this.router.navigateByUrl('/students').then();
+        }, 2000);
+      }
+     })
+  }
 
   ngOnDestroy(): void {
     this.getallStudentByIdSubscribe?.unsubscribe();
     this.getallGenderSubscribe?.unsubscribe();
     this.paramSubscription?.unsubscribe();
     this.editStudentSubscription?.unsubscribe();
+    this.removeStudentSubscription?.unsubscribe();
   }
 }
