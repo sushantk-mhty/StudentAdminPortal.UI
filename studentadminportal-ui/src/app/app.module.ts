@@ -10,12 +10,14 @@ import { StudentsComponent } from './components/students/students.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule } from 'ngx-ui-loader';
+import { ViewStudentComponent } from './components/view-student/view-student.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TopNavComponent,
-    StudentsComponent
+    StudentsComponent,
+    ViewStudentComponent
   ],
   imports: [
     FormsModule,

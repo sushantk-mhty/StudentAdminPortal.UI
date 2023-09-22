@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { IStudentUI } from 'src/app/models/ui-models/istudentui.model';
 import { StudentService } from 'src/app/services/student.service';
 
@@ -22,6 +22,7 @@ export class StudentsComponent implements OnInit, OnDestroy {
     'email',
     'mobile',
     'gender',
+    'action'
   ];
   dataSource: MatTableDataSource<IStudentUI> =
     new MatTableDataSource<IStudentUI>();

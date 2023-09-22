@@ -20,5 +20,9 @@ export class StudentService {
     let dataURL: string = `${environment.apiBaseUrl}/api/students`;
     return this.http.get<IStudent[]>(dataURL);
   }
+  public getStudentById(studentId:string):Observable<IStudent>{
+    let dataURL: string = `${environment.apiBaseUrl}/api/students/${studentId}`;
+    return this.http.get<IStudent>(dataURL);
+  }
 
 }
