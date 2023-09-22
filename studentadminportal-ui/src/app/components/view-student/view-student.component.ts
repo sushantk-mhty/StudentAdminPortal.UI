@@ -16,18 +16,42 @@ import { DialogService } from 'src/app/shared/dialog.service';
 export class ViewStudentComponent implements OnInit, OnDestroy {
   private studentService: StudentService = inject(StudentService);
   private genderService: GenderService = inject(GenderService);
-  private route: ActivatedRoute = inject(ActivatedRoute); 
+  private route: ActivatedRoute = inject(ActivatedRoute);
   private router: Router = inject(Router);
   private snackbar: MatSnackBar = inject(MatSnackBar);
   private dialogService: DialogService = inject(DialogService);
   private getallStudentByIdSubscribe?: Subscription;
   private getallGenderSubscribe?: Subscription;
+  private createStudentSubscribe?: Subscription;
   private paramSubscription?: Subscription;
   private editStudentSubscription?: Subscription;
   private removeStudentSubscription?: Subscription;
+  private dialogSubscription?: Subscription;
   private studentId: string | null | undefined;
-  public student: IStudentUI = {} as IStudentUI;
+  //public student: IStudentUI = {} as IStudentUI;
+
+  student: IStudentUI = {
+    id: '',
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    email: '',
+    mobile: '',
+    genderId: '',
+    profileImageUrl: '',
+    gender: {
+      id: '',
+      description: '',
+    },
+    address: {
+      id: '',
+      physicalAddress: '',
+      postalAddress: '',
+    },
+  };
   public gender?: IGenderUI[];
+  isNewStudent: boolean = false;
+  header: string = '';
   ngOnInit(): void {
     this.paramSubscription = this.route.paramMap.subscribe({
       next: (params) => {
@@ -37,68 +61,95 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
       },
     });
   }
- 
+
   private getAllStudents(): void {
     if (this.studentId) {
-      this.getallStudentByIdSubscribe = this.studentService
-        .getStudentById(this.studentId)
-        .subscribe({
-          next: (response) => {
-            this.student = response;
-          },
-        });
-    } 
+      //If the route contains the "Create"
+      if (this.studentId.toLowerCase() === 'Create'.toLowerCase()) {
+        //--> new Student functionality
+        this.isNewStudent = true;
+        this.header = 'Create New Student';
+      } else {
+        //-->Existing Student functionality
+        this.isNewStudent = false;
+        this.header = 'Update Student';
+        this.getallStudentByIdSubscribe = this.studentService
+          .getStudentById(this.studentId)
+          .subscribe({
+            next: (response) => {
+              this.student = response;
+            },
+          });
+      }
+    }
   }
 
-  private getAllGenders():void{
-        this.getallGenderSubscribe=this.genderService.getAllGenders()
-        .subscribe({
-          next:(response)=>{
-           this.gender=response;
-          }
-        })
-  }
-
-  public onFormSubmit():void{
-    this.editStudentSubscription=this.studentService.updateStudent(this.student.id,this.student)
-    .subscribe({
-      next:(response)=>{
-        //Show a notification
-        this.snackbar.open('Student updated successfully',undefined,{
-          duration:2000
-        });
-        setTimeout(() => {
-          this.router.navigateByUrl('/students').then();
-        }, 5000);
+  private getAllGenders(): void {
+    this.getallGenderSubscribe = this.genderService.getAllGenders().subscribe({
+      next: (response) => {
+        this.gender = response;
       },
-      error:(error)=>{
-
-      }
-    })
-
+    });
   }
 
-  public onRecordRemove():void{
-    this.dialogService.openConfirmDialog('Are you sure to remove this record?')
-    .afterClosed().subscribe({
-      next:(res)=>{
-        if(res){
-          this.removeStudentSubscription= this.studentService.deleteStudent(this.student.id)
-             .subscribe({
-              next:(resp)=>{
-                this.snackbar.open('Student deleted successfully',undefined,{
-                  duration:2000
-                });
-                setTimeout(() => {
-                  this.router.navigateByUrl('/students').then();
-                }, 2000);
-              }
-             })
-        }
-      }
-    })
-   
- }
+  public onFormSubmit(): void {
+    this.editStudentSubscription = this.studentService
+      .updateStudent(this.student.id, this.student)
+      .subscribe({
+        next: (response) => {
+          //Show a notification
+          this.snackbar.open('Student updated successfully', undefined, {
+            duration: 2000,
+          });
+          setTimeout(() => {
+            this.router.navigateByUrl('/students').then();
+          }, 5000);
+        },
+        error: (error) => {},
+      });
+  }
+
+  public onRecordRemove(): void {
+    this.dialogSubscription = this.dialogService
+      .openConfirmDialog('Are you sure to remove this record?')
+      .afterClosed()
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            this.removeStudentSubscription = this.studentService
+              .deleteStudent(this.student.id)
+              .subscribe({
+                next: (resp) => {
+                  this.snackbar.open(
+                    'Student deleted successfully',
+                    undefined,
+                    {
+                      duration: 2000,
+                    }
+                  );
+                  setTimeout(() => {
+                    this.router.navigateByUrl('/students').then();
+                  }, 2000);
+                },
+              });
+          }
+        },
+      });
+  }
+  onCreateSubmit(): void {
+    this.createStudentSubscribe = this.studentService
+      .createStudent(this.student)
+      .subscribe({
+        next: (response) => {
+          this.snackbar.open('Student Created successfully', undefined, {
+            duration: 2000,
+          });
+          setTimeout(() => {
+            this.router.navigateByUrl(`students/${response.id}`).then();
+          }, 5000);
+        },
+      });
+  }
 
   ngOnDestroy(): void {
     this.getallStudentByIdSubscribe?.unsubscribe();
@@ -106,5 +157,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
     this.paramSubscription?.unsubscribe();
     this.editStudentSubscription?.unsubscribe();
     this.removeStudentSubscription?.unsubscribe();
+    this.dialogSubscription?.unsubscribe();
+    this.createStudentSubscribe?.unsubscribe();
   }
 }

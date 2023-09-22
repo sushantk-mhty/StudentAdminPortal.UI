@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IStudent } from '../models/api-models/istudent.model';
 import { IUpdateStudentRequest } from '../models/api-models/iupdate-student-request.model';
+import { ICreateStudentRequest } from '../models/api-models/icreate-student-request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -61,5 +62,19 @@ export class StudentService {
    public deleteStudent(studentId: string): Observable<IStudent> {
     let dataURL: string = `${environment.apiBaseUrl}/api/students/${studentId}`;
     return this.http.delete<IStudent>(dataURL);
+  }
+   public createStudent(studentRequest: IStudent): Observable<IStudent> {
+    const createStudentRequest:ICreateStudentRequest={
+      firstName:studentRequest.firstName,
+      lastName:studentRequest.lastName,
+      dateOfBirth:studentRequest.dateOfBirth,
+      email:studentRequest.email,
+      mobile:studentRequest.mobile,
+      genderId:studentRequest.genderId,
+      physicalAddress:studentRequest.address.physicalAddress,
+      postalAddress:studentRequest.address.postalAddress
+     }
+    let dataURL: string = `${environment.apiBaseUrl}/api/students`;
+    return this.http.post<IStudent>(dataURL, createStudentRequest);
   }
 }
