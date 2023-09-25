@@ -29,7 +29,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   private dialogSubscription?: Subscription;
   private studentId: string | null | undefined;
   //public student: IStudentUI = {} as IStudentUI;
-
+  private file?: File;
   student: IStudentUI = {
     id: '',
     firstName: '',
@@ -52,6 +52,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   public gender?: IGenderUI[];
   isNewStudent: boolean = false;
   header: string = '';
+  displayProfileImageUrl: string = '';
   ngOnInit(): void {
     this.paramSubscription = this.route.paramMap.subscribe({
       next: (params) => {
@@ -69,6 +70,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
         //--> new Student functionality
         this.isNewStudent = true;
         this.header = 'Create New Student';
+        this.setImage();
       } else {
         //-->Existing Student functionality
         this.isNewStudent = false;
@@ -78,6 +80,10 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (response) => {
               this.student = response;
+              this.setImage();
+            },
+            error: (error) => {
+              this.setImage();
             },
           });
       }
@@ -149,6 +155,48 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
           }, 5000);
         },
       });
+  }
+  private setImage(): void {
+    if (this.student.profileImageUrl) {
+      //Fetch the Image by Url
+      this.displayProfileImageUrl = this.studentService.getImagePath(
+        this.student.profileImageUrl
+      );
+    } else {
+      //display Default
+      this.displayProfileImageUrl = '/../assets/shaifer-user.jpg';
+    }
+  }
+  public onUploadImage(event: Event): void {
+    if (this.studentId) {
+      const element = event.currentTarget as HTMLInputElement;
+      this.file = element.files?.[0];
+      if (this.file) {
+        this.studentService.uploadImage(this.student.id, this.file).subscribe({
+          next: (resp) => {
+            this.student.profileImageUrl = resp;
+            this.setImage();
+          },
+          error: (error) => {
+            this.snackbar.open(
+              'Profile Image has been updated successfully',
+              undefined,
+              {
+                duration: 2000,
+              }
+            );
+            setTimeout(() => {
+              let currentUrl = this.router.url;
+              this.router
+                .navigateByUrl('/', { skipLocationChange: true })
+                .then(() => {
+                  this.router.navigate([currentUrl]);
+                });
+            }, 1000);
+          },
+        });
+      }
+    }
   }
 
   ngOnDestroy(): void {

@@ -12,26 +12,6 @@ import { ICreateStudentRequest } from '../models/api-models/icreate-student-requ
 export class StudentService {
   private http: HttpClient = inject(HttpClient);
   constructor() { }
-
-  // public getAllCategories(): Observable<ICategory[]> {
-  //   let dataURL: string = `${environment.apiBaseUrl}/api/categories`;
-  //   return this.http.get<ICategory[]>(dataURL);
-  // }
-  // public addCategory(model: IAddCategoryRequest): Observable<void> {
-  //   let dataURL: string = `${environment.apiBaseUrl}/api/categories?addAuth=true`;
-  //   return this.http.post<void>(dataURL, model);
-  // }
-
-  // public updateCatagory(id: string, updateCategoryRequest: IUpdateCategoryRequest): Observable<ICategory> {
-  //   let dataURL: string = `${environment.apiBaseUrl}/api/categories/${id}?addAuth=true`;
-  //   return this.http.put<ICategory>(dataURL, updateCategoryRequest)
-  // }
-
-  // public deleteCatagory(id: string): Observable<ICategory> {
-  //   let dataURL: string = `${environment.apiBaseUrl}/api/categories/${id}?addAuth=true`;
-  //   return this.http.delete<ICategory>(dataURL);
-  // }
-
   public getAllStudents():Observable<IStudent[]>{
     let dataURL: string = `${environment.apiBaseUrl}/api/students`;
     return this.http.get<IStudent[]>(dataURL);
@@ -40,10 +20,6 @@ export class StudentService {
     let dataURL: string = `${environment.apiBaseUrl}/api/students/${studentId}`;
     return this.http.get<IStudent>(dataURL);
   }
-  //   public updateStudent(studentId: string, updateStudentRequest: IUpdateStudentRequest): Observable<IStudent> {
-  //   let dataURL: string = `${environment.apiBaseUrl}/api/students/${studentId}`;
-  //   return this.http.put<IStudent>(dataURL, updateStudentRequest)
-  // }
 
   public updateStudent(studentId: string, studentRequest: IStudent): Observable<IStudent> {
     const updateStudentRequest:IUpdateStudentRequest={
@@ -77,4 +53,15 @@ export class StudentService {
     let dataURL: string = `${environment.apiBaseUrl}/api/students`;
     return this.http.post<IStudent>(dataURL, createStudentRequest);
   }
+ 
+  public uploadImage(studentId: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('profileImage', file);
+    let dataURL: string = `${environment.apiBaseUrl}/api/students/upload-image/${studentId}`;
+    return this.http.post<any>(dataURL, formData);
+  }
+  public getImagePath(relativePath:string){
+    return `${environment.apiBaseUrl}/${relativePath}`;
+  }
+
 }
