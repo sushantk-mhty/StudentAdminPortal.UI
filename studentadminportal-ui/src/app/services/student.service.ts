@@ -63,5 +63,4 @@ export class StudentService {
   public getImagePath(relativePath:string){
     return `${environment.apiBaseUrl}/${relativePath}`;
   }
-
 }

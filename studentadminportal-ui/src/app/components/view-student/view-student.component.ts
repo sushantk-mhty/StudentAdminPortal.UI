@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -27,6 +28,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   private editStudentSubscription?: Subscription;
   private removeStudentSubscription?: Subscription;
   private dialogSubscription?: Subscription;
+  private uploadImageSubscribe?: Subscription;
   private studentId: string | null | undefined;
   //public student: IStudentUI = {} as IStudentUI;
   private file?: File;
@@ -53,6 +55,7 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
   isNewStudent: boolean = false;
   header: string = '';
   displayProfileImageUrl: string = '';
+  @ViewChild('studentDetailsForm') studentDetailsForm?:NgForm;
   ngOnInit(): void {
     this.paramSubscription = this.route.paramMap.subscribe({
       next: (params) => {
@@ -143,7 +146,9 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
       });
   }
   onCreateSubmit(): void {
-    this.createStudentSubscribe = this.studentService
+    if(this.studentDetailsForm?.form.valid){
+      //Submit form data to api
+      this.createStudentSubscribe = this.studentService
       .createStudent(this.student)
       .subscribe({
         next: (response) => {
@@ -154,7 +159,12 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl(`students/${response.id}`).then();
           }, 5000);
         },
+        error: (error) => {
+          console.log(error);
+        },
       });
+    }
+   
   }
   private setImage(): void {
     if (this.student.profileImageUrl) {
@@ -168,35 +178,40 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
     }
   }
   public onUploadImage(event: Event): void {
-    if (this.studentId) {
-      const element = event.currentTarget as HTMLInputElement;
-      this.file = element.files?.[0];
-      if (this.file) {
-        this.studentService.uploadImage(this.student.id, this.file).subscribe({
-          next: (resp) => {
-            this.student.profileImageUrl = resp;
-            this.setImage();
-          },
-          error: (error) => {
-            this.snackbar.open(
-              'Profile Image has been updated successfully',
-              undefined,
-              {
-                duration: 2000,
-              }
-            );
-            setTimeout(() => {
-              let currentUrl = this.router.url;
-              this.router
-                .navigateByUrl('/', { skipLocationChange: true })
-                .then(() => {
-                  this.router.navigate([currentUrl]);
-                });
-            }, 1000);
-          },
-        });
+    if(this.studentDetailsForm?.form.valid){
+      if (this.studentId) {
+        const element = event.currentTarget as HTMLInputElement;
+        this.file = element.files?.[0];
+        if (this.file) {
+          this.uploadImageSubscribe = this.studentService
+            .uploadImage(this.student.id, this.file)
+            .subscribe({
+              next: (resp) => {
+                this.student.profileImageUrl = resp;
+                this.setImage();
+              },
+              error: (error) => {
+                this.snackbar.open(
+                  'Profile Image has been updated successfully',
+                  undefined,
+                  {
+                    duration: 2000,
+                  }
+                );
+                setTimeout(() => {
+                  let currentUrl = this.router.url;
+                  this.router
+                    .navigateByUrl('/', { skipLocationChange: true })
+                    .then(() => {
+                      this.router.navigate([currentUrl]);
+                    });
+                }, 1000);
+              },
+            });
+        }
       }
     }
+   
   }
 
   ngOnDestroy(): void {
@@ -207,5 +222,6 @@ export class ViewStudentComponent implements OnInit, OnDestroy {
     this.removeStudentSubscription?.unsubscribe();
     this.dialogSubscription?.unsubscribe();
     this.createStudentSubscribe?.unsubscribe();
+    this.uploadImageSubscribe?.unsubscribe();
   }
 }
